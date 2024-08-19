@@ -162,6 +162,11 @@ class ProductListView(generics.ListCreateAPIView):
         permission_classes=[IsAuthenticated]
         queryset=Product.objects.all()
         serializer_class=ProductSerializer 
+        
+        def get_queryset(self):
+             user=self.request.user
+             return Product.objects.filter(user=user) 
+        
         def perform_create(self, serializer):
              serializer.save(user=self.request.user)
 
@@ -178,7 +183,8 @@ class ProductListCreateMixinView(mixins.CreateModelMixin,
                             generics.GenericAPIView):
      authentication_class=[JWTAuthentication]
      permission_class=[IsAuthenticated]
-     queryset=Product.objects.all()
+     queryset=Product.objects.filter()
+     print(queryset)
      serializer_class=ProductSerializer
  
      def post(self,request):
