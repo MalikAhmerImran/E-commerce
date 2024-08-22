@@ -45,6 +45,21 @@ class Product(models.Model):
 
     def __str__(self):
         return self.product_name
+    
+class Order(models.Model):
+
+    customer_contact=models.CharField(max_length=255)
+    customer_address=models.CharField(max_length=255)
+    date=models.DateTimeField(auto_now_add=True)
+    order_by=models.ForeignKey(User,on_delete=models.CASCADE)
+    
+    
+class OrderDetails(models.Model):
+    order_fk=models.ForeignKey(Order,related_name='order_details',on_delete=models.CASCADE)
+    product_fk=models.ForeignKey(Product,on_delete=models.CASCADE)
+    quantity=models.CharField(max_length=255)
+
+
 
 
 

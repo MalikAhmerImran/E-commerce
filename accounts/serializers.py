@@ -1,17 +1,19 @@
 from rest_framework import serializers
 from rest_framework.response import Response 
-from djangoproject.accounts.models import User,Product
+from djangoproject.accounts.models import User,Product,Order,OrderDetails
 from django.contrib.auth.password_validation  import validate_password
 from django.core.exceptions import ValidationError
 from djangoproject.accounts.utils import Util
+from drf_writable_nested import WritableNestedModelSerializer
 class UserRegistrationSerializer(serializers.ModelSerializer):
     products=serializers.PrimaryKeyRelatedField(many=True,queryset=Product.objects.all(),required=False)
+
 
     password2=serializers.CharField(style={'input_type':'password'},write_only=True)
     is_owner=serializers.BooleanField()
     class Meta:
         model=User
-        fields=['username','email','password','is_owner','password2','products']
+        fields=['username','email','password','is_owner','password2','products','order']
         extra_kwargs={
             'password':{'write_only':True}
         }
@@ -57,14 +59,56 @@ class  ResendOtpSerializer(serializers.Serializer):
     email=serializers.CharField()
     
 class ChangePasswordSerializer(serializers.Serializer):
+      
         email=serializers.CharField()
         old_password=serializers.CharField(max_length=50,style={'input_type':'password'},write_only=True)
         new_password=serializers.CharField(max_length=50,style={'input_type':'password'},write_only=True)
 
 class ProductSerializer(serializers.ModelSerializer):
            user = serializers.ReadOnlyField(source='user.username')
-           
-
            class Meta:
                 model=Product
                 fields=['id','product_name','product_price','user']
+
+
+
+class OrderDetailSerializer(serializers.ModelSerializer):
+     
+     class Meta:
+          model=OrderDetails
+          fields=['product_fk','quantity']
+       
+class OrderSerializer(WritableNestedModelSerializer):  
+         order_details=OrderDetailSerializer(many=True)
+           
+         
+         class Meta:
+              model=Order
+              fields=['id','customer_contact','customer_address','date','order_details']   
+
+
+       
+                                  
+
+# class OrderSerializer(serializers.ModelSerializer):  
+#          order_details=OrderDetailSerializer(many=True)
+           
+         
+#          class Meta:
+#               model=Order
+#               fields=['id','customer_contact','customer_address','date','order_details']   
+
+
+               
+#          def create(self, validated_data):
+#                     order_details_data = validated_data.pop('order_details')
+#                     order = Order.objects.create(**validated_data)
+#                     for order_detail_data in order_details_data:
+#                         OrderDetails.objects.create(order_fk=order, **order_detail_data)
+#                     return order
+                                  
+
+
+   
+
+     

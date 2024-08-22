@@ -10,7 +10,8 @@ from  djangoproject.accounts. views import  (ChangePasswordView,
                               ProductListView,
                               ProductDetailView,
                               ProductListCreateMixinView,
-                              ProductDetailMixinView
+                              ProductDetailMixinView,
+                              OrderView
                               )
 urlpatterns = [
     path('register/',UserRegistrationView.as_view(),name='register'),
@@ -24,5 +25,8 @@ urlpatterns = [
     path('product/<int:pk>/',ProductDetailView.as_view(),name='product details'),
     path('product/mixin/',ProductListCreateMixinView.as_view(),name='mixin view'),
      path('product/mixin/<int:pk>/',ProductDetailMixinView.as_view(),name='mixin detail view'),
+     path('order/',OrderView.as_view(),name='order'),
+
+
 
 ]

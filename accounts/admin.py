@@ -1,5 +1,5 @@
 from django.contrib import admin
-from djangoproject.accounts.models import User,Product
+from djangoproject.accounts.models import User,Product,Order,OrderDetails
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 
 # Register your models here.
@@ -33,10 +33,8 @@ class UserModelAdmin(BaseUserAdmin):
     filter_horizontal = []
 
 
-
-     
-
-
 admin.site.register(User, UserModelAdmin)    
 admin.site.register(Product)    
+admin.site.register(Order)
+admin.site.register(OrderDetails)
 

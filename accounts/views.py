@@ -10,7 +10,9 @@ from  djangoproject.accounts.serializers import (ChangePasswordSerializer,
                                   UserPasswordResetSerailizer,
                                   UserPasswordResetUpdateserializer,
                                   UserVerifyEmailSerializer,
-                                  ProductSerializer)
+                                  ProductSerializer,
+                                  OrderSerializer,
+                                  OrderDetailSerializer)
 from django.contrib.auth import authenticate
 from rest_framework import mixins
 import logging
@@ -20,7 +22,7 @@ from django.contrib.auth.password_validation  import validate_password
 from django.core.exceptions  import ValidationError
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication 
-from djangoproject.accounts.models import Product
+from djangoproject.accounts.models import *
 # Create your views here.
 
 
@@ -164,8 +166,12 @@ class ProductListView(generics.ListCreateAPIView):
         serializer_class=ProductSerializer 
         
         def get_queryset(self):
+            
              user=self.request.user
-             return Product.objects.filter(user=user) 
+             if user.is_owner is True:  
+                return Product.objects.filter(user=user) 
+             else:
+                  return Product.objects.all()
         
         def perform_create(self, serializer):
              serializer.save(user=self.request.user)
@@ -178,13 +184,28 @@ class ProductDetailView(generics.RetrieveUpdateDestroyAPIView):
      serializer_class=ProductSerializer   
 
 
+     
+class OrderView(generics.ListCreateAPIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+    serializer_class = OrderSerializer
+    queryset = Order.objects.all()
+
+    def perform_create(self, serializer):
+        serializer.save(order_by=self.request.user)
+
+
+        
+
+
+
+
 class ProductListCreateMixinView(mixins.CreateModelMixin,
                             mixins.ListModelMixin,
                             generics.GenericAPIView):
      authentication_class=[JWTAuthentication]
      permission_class=[IsAuthenticated]
      queryset=Product.objects.filter()
-     print(queryset)
      serializer_class=ProductSerializer
  
      def post(self,request):
@@ -213,6 +234,7 @@ class ProductDetailMixinView(mixins.RetrieveModelMixin,
      
 
 
+     
 
           
           
