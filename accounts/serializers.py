@@ -5,10 +5,10 @@ from django.contrib.auth.password_validation  import validate_password
 from django.core.exceptions import ValidationError
 from djangoproject.accounts.utils import Util
 from drf_writable_nested import WritableNestedModelSerializer
+
+
 class UserRegistrationSerializer(serializers.ModelSerializer):
     products=serializers.PrimaryKeyRelatedField(many=True,queryset=Product.objects.all(),required=False)
-
-
     password2=serializers.CharField(style={'input_type':'password'},write_only=True)
     is_owner=serializers.BooleanField()
     class Meta:
@@ -17,13 +17,17 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         extra_kwargs={
             'password':{'write_only':True}
         }
+
+
     def validate(self, attrs):
         password=attrs.get('password')
         password2=attrs.get('password2')
         
         if password!= password2:
             raise serializers.ValidationError("Password and confirm password didnot match  ")
-        return attrs    
+        return attrs   
+
+
     def create(self, validated_data):
         print(validated_data)
         try:
@@ -35,16 +39,23 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         password=validated_data['password']
         is_owner=validated_data['is_owner']
         return User.objects.create_user(username=username,email=email,password=password,is_owner=is_owner)
+    
+
+
 class UserLoginSerializer(serializers.ModelSerializer):
     email=serializers.EmailField(max_length=50)
     class Meta:
         model=User
         fields=['password','email']
+
+
 class UserPasswordResetSerailizer(serializers.ModelSerializer):
     email=serializers.EmailField(max_length=50)
     class Meta:
         model=User
         fields=['email']
+
+
 class UserPasswordResetUpdateserializer(serializers.Serializer):
       password=serializers.CharField(max_length=50,style={'input_type':'password'},write_only=True)
       password2=serializers.CharField(max_length=50,style={'input_type':'password'},write_only=True)
@@ -52,17 +63,21 @@ class UserPasswordResetUpdateserializer(serializers.Serializer):
       class Meta:
         model=User
         fields=['otp','password','password2']
+
+
 class   UserVerifyEmailSerializer(serializers.Serializer):
     email=serializers.CharField()
     otp=serializers.CharField()   
+
+
 class  ResendOtpSerializer(serializers.Serializer):
     email=serializers.CharField()
     
 class ChangePasswordSerializer(serializers.Serializer):
-      
         email=serializers.CharField()
         old_password=serializers.CharField(max_length=50,style={'input_type':'password'},write_only=True)
         new_password=serializers.CharField(max_length=50,style={'input_type':'password'},write_only=True)
+
 
 class ProductSerializer(serializers.ModelSerializer):
            user = serializers.ReadOnlyField(source='user.username')
@@ -76,18 +91,24 @@ class OrderDetailSerializer(serializers.ModelSerializer):
      
      class Meta:
           model=OrderDetails
-          fields=['product_fk','quantity']
+          fields=['id','product','quantity']
+
+
        
 class OrderSerializer(WritableNestedModelSerializer):  
-         order_details=OrderDetailSerializer(many=True)
+         products=OrderDetailSerializer(many=True)
            
          
          class Meta:
               model=Order
-              fields=['id','customer_contact','customer_address','date','order_details']   
+              fields=['id','customer_contact','customer_address','date','products']   
 
 
-       
+
+class OrderApproveSerializer(serializers.ModelSerializer):
+     class Meta:
+          model=Order
+          fields=['is_approved']
                                   
 
 # class OrderSerializer(serializers.ModelSerializer):  

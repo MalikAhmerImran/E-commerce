@@ -12,7 +12,8 @@ from  djangoproject.accounts.serializers import (ChangePasswordSerializer,
                                   UserVerifyEmailSerializer,
                                   ProductSerializer,
                                   OrderSerializer,
-                                  OrderDetailSerializer)
+                                  OrderDetailSerializer,
+                                  OrderApproveSerializer)
 from django.contrib.auth import authenticate
 from rest_framework import mixins
 import logging
@@ -23,8 +24,9 @@ from django.core.exceptions  import ValidationError
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication 
 from djangoproject.accounts.models import *
+from rest_framework import viewsets
 # Create your views here.
-
+    
 
 class UserRegistrationView(APIView):
     def post(self,request,format=None):
@@ -195,6 +197,61 @@ class OrderView(generics.ListCreateAPIView):
         serializer.save(order_by=self.request.user)
 
 
+class OrderUpdateView(generics.RetrieveUpdateDestroyAPIView):
+
+    authentication_classes=[JWTAuthentication]
+    permission_classes=[IsAuthenticated]
+    serializer_class=OrderSerializer
+    queryset=Order.objects.all()
+
+
+
+class OrderApproveView(viewsets.ViewSet):
+    authentication_classes=[JWTAuthentication]
+    permission_classes=[IsAuthenticated]
+    serializer_class=OrderApproveSerializer
+
+    def partial_update(self,request,pk):
+              
+        try:
+            order = Order.objects.get(pk=pk)
+        except Order.DoesNotExist:
+            return Response({'msg': 'Order not found'}, status=status.HTTP_404_NOT_FOUND)
+          
+        if not  request.user.is_owner:
+            return Response({'msg':'only owner can modify the order'},status=status.HTTP_404_NOT_FOUND)
+
+        serializer = OrderApproveSerializer(order, data={'is_approved': True}, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response({'msg':'Order Approved '},status=status.HTTP_404_NOT_FOUND)
+        
+       
+    
+       
+
+   
+
+    
+
+#  class OrderApproveView(APIView):
+#      authentication_classes=[JWTAuthentication]
+#      permission_classes=[IsAuthenticated]
+     
+#      def post(self,request,pk):
+          
+#           order=Order.objects.get(pk=pk)
+
+#           if not order:
+#                return Response({'msg':'order does not exit '},status=status.HTTP_404_NOT_FOUND)
+          
+#           else:
+#                if not request.user.is_owner:
+#                     return Response({'msg':'You are not the owner so you can not approve the owner'},)
+               
+
+
+
         
 
 
@@ -233,6 +290,9 @@ class ProductDetailMixinView(mixins.RetrieveModelMixin,
           return self.destroy(request)
      
 
+
+     
+          
 
      
 

@@ -18,6 +18,8 @@ class UserManager(BaseUserManager):
         user.is_staff = True
         user.save(using=self._db)
         return user
+    
+    
 class User(AbstractBaseUser):
     username = models.CharField(max_length=50, unique=True)
     email = models.EmailField(max_length=255, unique=True)
@@ -39,7 +41,7 @@ class User(AbstractBaseUser):
 
 class Product(models.Model):
     product_name=models.CharField(max_length=255,unique=True)
-    product_price=models.CharField(max_length=255,unique=True)
+    product_price=models.PositiveIntegerField()
     user=models.ForeignKey(User,related_name='products',on_delete=models.CASCADE)
 
 
@@ -48,16 +50,18 @@ class Product(models.Model):
     
 class Order(models.Model):
 
-    customer_contact=models.CharField(max_length=255)
+    customer_contact=models.CharField(max_length=12)
     customer_address=models.CharField(max_length=255)
     date=models.DateTimeField(auto_now_add=True)
+    is_approved=models.BooleanField(default=False)
     order_by=models.ForeignKey(User,on_delete=models.CASCADE)
     
     
 class OrderDetails(models.Model):
-    order_fk=models.ForeignKey(Order,related_name='order_details',on_delete=models.CASCADE)
-    product_fk=models.ForeignKey(Product,on_delete=models.CASCADE)
-    quantity=models.CharField(max_length=255)
+    order=models.ForeignKey(Order,related_name='products',on_delete=models.CASCADE)
+    product=models.ForeignKey(Product,on_delete=models.CASCADE)
+    quantity=models.PositiveIntegerField()
+
 
 
 
