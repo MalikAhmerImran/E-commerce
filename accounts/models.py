@@ -49,9 +49,11 @@ class Permissions(models.Model):
     name=models.CharField(max_length=255)
     code=models.PositiveIntegerField()
 
-class Role(models.Model):
 
-    permissions=models.ForeignKey(Permissions,related_name='permission',on_delete=models.CASCADE)
+
+class Role(models.Model):
+    
+    permissions=models.ManyToManyField(Permissions)
 
 
 class Member(models.Model):
