@@ -62,8 +62,10 @@ class OrderDetails(models.Model):
     product=models.ForeignKey(Product,on_delete=models.CASCADE)
     quantity=models.PositiveIntegerField()
 
-
-
+class Images(models.Model):
+    image=models.FileField(upload_to='product_pictures/')
+    caption=models.CharField(max_length=255)
+    product=models.ForeignKey(Product,related_name='product_images',on_delete=models.CASCADE)
 
 
 

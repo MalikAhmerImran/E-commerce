@@ -1,10 +1,20 @@
 from rest_framework import serializers
 from rest_framework.response import Response 
-from djangoproject.accounts.models import User,Product,Order,OrderDetails
+from djangoproject.accounts.models import (
+    User,
+    Product,
+    Order,
+    OrderDetails,
+    Images
+    )
+
 from django.contrib.auth.password_validation  import validate_password
 from django.core.exceptions import ValidationError
 from djangoproject.accounts.utils import Util
 from drf_writable_nested import WritableNestedModelSerializer
+from drf_extra_fields.fields import Base64ImageField
+from urllib.parse import unquote,urlsplit
+
 
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
@@ -78,12 +88,34 @@ class ChangePasswordSerializer(serializers.Serializer):
         old_password=serializers.CharField(max_length=50,style={'input_type':'password'},write_only=True)
         new_password=serializers.CharField(max_length=50,style={'input_type':'password'},write_only=True)
 
+class ImageSerializer(serializers.ModelSerializer):
+    image = serializers.CharField(max_length=2000)
+     
+    class Meta:
+          model=Images
+          fields=['id','image','caption']
+    
+    
+    def validate(self, attrs):
+        for field in ['image']:
+            if field in attrs:
+                attrs[field] = unquote(urlsplit(attrs[field]).path.replace('/media/', ''))
+        return super().validate(attrs)
+    
 
-class ProductSerializer(serializers.ModelSerializer):
+    def to_representation(self, obj):
+        self.fields["image"] = serializers.FileField()
+        return super().to_representation(obj)
+   
+     
+
+class ProductSerializer(WritableNestedModelSerializer):
+           
+           product_images=ImageSerializer(many=True)
            user = serializers.ReadOnlyField(source='user.username')
            class Meta:
                 model=Product
-                fields=['id','product_name','product_price','user']
+                fields=['id','product_name','product_price','product_images','user']
 
 
 
@@ -104,12 +136,12 @@ class OrderSerializer(WritableNestedModelSerializer):
               fields=['id','customer_contact','customer_address','date','products']   
 
 
-
 class OrderApproveSerializer(serializers.ModelSerializer):
      class Meta:
           model=Order
           fields=['is_approved']
-                                  
+
+
 
 # class OrderSerializer(serializers.ModelSerializer):  
 #          order_details=OrderDetailSerializer(many=True)
@@ -127,6 +159,7 @@ class OrderApproveSerializer(serializers.ModelSerializer):
 #                     for order_detail_data in order_details_data:
 #                         OrderDetails.objects.create(order_fk=order, **order_detail_data)
 #                     return order
+
                                   
 
 

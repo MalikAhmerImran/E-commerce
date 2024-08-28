@@ -13,7 +13,8 @@ from  djangoproject.accounts. views import  (ChangePasswordView,
                               ProductListCreateMixinView,
                               ProductDetailMixinView,
                               OrderView,
-                              OrderUpdateView
+                              OrderUpdateView,
+                              ImageUrlView
                               
                               )
 
@@ -40,5 +41,6 @@ urlpatterns = [
     path('product/mixin/<int:pk>/',ProductDetailMixinView.as_view(),name='mixin detail view'),
     path('order/',OrderView.as_view(),name='order'),
     path('order/update/<int:pk>/',OrderUpdateView.as_view(),name='order update'),
+    path('imageurl/',ImageUrlView.as_view(),name='image url'),
     path('',include(router.urls))
 ]

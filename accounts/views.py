@@ -3,6 +3,8 @@ from rest_framework.response import Response
 from rest_framework import generics
 from rest_framework import status
 from rest_framework.views import APIView
+from rest_framework.parsers import MultiPartParser
+from django.core.files.storage import default_storage
 from  djangoproject.accounts.serializers import (ChangePasswordSerializer,
                                   ResendOtpSerializer,
                                   UserRegistrationSerializer,
@@ -169,14 +171,16 @@ class ProductListView(generics.ListCreateAPIView):
         
         def get_queryset(self):
             
-             user=self.request.user
-             if user.is_owner is True:  
+            user=self.request.user
+            if user.is_owner is True:  
                 return Product.objects.filter(user=user) 
-             else:
-                  return Product.objects.all()
+            else:
+                return Product.objects.all()
         
-        def perform_create(self, serializer):
-             serializer.save(user=self.request.user)
+        def perform_create(self,serializer):
+            
+            
+            serializer.save(user=self.request.user)
 
       
 class ProductDetailView(generics.RetrieveUpdateDestroyAPIView):
@@ -219,12 +223,34 @@ class OrderApproveView(viewsets.ViewSet):
             return Response({'msg': 'Order not found'}, status=status.HTTP_404_NOT_FOUND)
           
         if not  request.user.is_owner:
-            return Response({'msg':'only owner can modify the order'},status=status.HTTP_404_NOT_FOUND)
+            return Response({'msg':'only owner can approves the order'},status=status.HTTP_404_NOT_FOUND)
 
-        serializer = OrderApproveSerializer(order, data={'is_approved': True}, partial=True)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
         return Response({'msg':'Order Approved '},status=status.HTTP_404_NOT_FOUND)
+    
+class ImageUrlView(APIView):
+    authentication_classes=[JWTAuthentication] 
+    permission_classes=[IsAuthenticated] 
+    
+    def post(self,request):
+       
+        file=request.data['file']
+        folder=request.data['folder']
+        if file:
+            file_path=default_storage.save(f'{folder}/{file.name}',file)
+            print(file_path)
+            file_url=default_storage.url(file_path)
+            full_url=request.build_absolute_uri(file_url)
+            return Response({'image url':full_url},status=status.HTTP_200_OK)
+        else:
+            return Response({'file not found'},status=status.HTTP_404_NOT_FOUND)
+
+         
+
+
+
+    
+
+         
         
        
     
@@ -249,6 +275,7 @@ class OrderApproveView(viewsets.ViewSet):
 #                if not request.user.is_owner:
 #                     return Response({'msg':'You are not the owner so you can not approve the owner'},)
                
+
 
 
 
