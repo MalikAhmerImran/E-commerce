@@ -51,7 +51,7 @@ class Member(models.Model):
 
 
 class Permissions(models.Model):
-    name=models.CharField(models.Model)
+    name=models.CharField(max_length=255)
     code=models.PositiveIntegerField()
     member=models.ForeignKey(Member,related_name='member',on_delete=models.CASCADE)
 
