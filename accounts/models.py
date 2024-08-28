@@ -27,8 +27,6 @@ class User(AbstractBaseUser):
     otp=models.CharField(max_length=6,null=True)
     is_active = models.BooleanField(default=True)
     is_admin = models.BooleanField(default=False)
-    is_staff=models.BooleanField(default=False)
-    is_owner=models.BooleanField(default=False)
     objects=UserManager()
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username']
@@ -38,6 +36,23 @@ class User(AbstractBaseUser):
     def has_module_perms(self, app_label):
         return True
     
+class Store(models.Model):
+    store_name=models.CharField(max_length=255)
+    store_address=models.CharField(max_length=255)
+    phone=models.CharField(max_length=255)
+
+
+class Member(models.Model):
+    member_name=models.CharField(max_length=255)
+    member_email=models.EmailField()
+    is_owner=models.BooleanField(default=False)
+    is_employe=models.BooleanField(default=False)
+    is_customer=models.BooleanField(default=False)
+    user=models.ForeignKey(User,related_name='user',on_delete=models.CASCADE)  
+
+class StoreMember(models.Model):
+    store=models.ForeignKey(Store,related_name='store',on_delete=models.CASCADE)
+    member=models.ForeignKey(Member,related_name='member',on_delete=models.CASCADE)  
 
 class Product(models.Model):
     product_name=models.CharField(max_length=255,unique=True)
