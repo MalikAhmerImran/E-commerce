@@ -27,8 +27,8 @@ class User(AbstractBaseUser):
     otp=models.CharField(max_length=6,null=True)
     is_active = models.BooleanField(default=True)
     is_admin = models.BooleanField(default=False)
-    is_staff=models.BooleanField(default=False)
-    is_owner=models.BooleanField(default=False)
+    is_staff= models.BooleanField(default=False)
+
     objects=UserManager()
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username']
@@ -52,6 +52,7 @@ class Permissions(models.Model):
 
 
 class Role(models.Model):   
+    name=models.CharField(max_length=255)
     permissions=models.ManyToManyField(Permissions)
 
 
@@ -94,10 +95,9 @@ class Images(models.Model):
 
 
 def setup_permissions():
-            for i in permissions:
-                obj,create=Permissions.objects.get_or_create()
-                code=i[0],name=i[1]
-
+    for i in permissions:
+        obj,create=Permissions.objects.get_or_create(code=i[0],name=i[1])
+                
 setup_permissions()      
 
 
