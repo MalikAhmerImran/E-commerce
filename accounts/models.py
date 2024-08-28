@@ -42,19 +42,25 @@ class Store(models.Model):
     phone=models.CharField(max_length=255)
 
 
-class Member(models.Model):
-    is_owner=models.BooleanField(default=False)
-    is_employe=models.BooleanField(default=False)
-    is_customer=models.BooleanField(default=False)
-    store=models.ForeignKey(Store,related_name='store',on_delete=models.CASCADE)
-    user=models.ForeignKey(User,related_name='user',on_delete=models.CASCADE)  
+
 
 
 class Permissions(models.Model):
     name=models.CharField(max_length=255)
     code=models.PositiveIntegerField()
-    member=models.ForeignKey(Member,related_name='member',on_delete=models.CASCADE)
 
+class Role(models.Model):
+
+    permissions=models.ForeignKey(Permissions,related_name='permission',on_delete=models.CASCADE)
+
+
+class Member(models.Model):
+    is_owner=models.BooleanField(default=False)
+    is_employe=models.BooleanField(default=False)
+    is_customer=models.BooleanField(default=False)
+    store=models.ForeignKey(Store,related_name='store',on_delete=models.CASCADE)
+    user=models.ForeignKey(User,related_name='user',on_delete=models.CASCADE) 
+    role=models.ForeignKey(Role,related_name='role',on_delete=models.CASCADE) 
 
 class Product(models.Model):
     product_name=models.CharField(max_length=255,unique=True)
