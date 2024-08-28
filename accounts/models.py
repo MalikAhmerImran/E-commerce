@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
-
+from djangoproject.accounts.permissions import *
 class UserManager(BaseUserManager):
     def create_user(self, username, email, password=None,password2=None,is_owner=False):
         if not username:
@@ -27,6 +27,8 @@ class User(AbstractBaseUser):
     otp=models.CharField(max_length=6,null=True)
     is_active = models.BooleanField(default=True)
     is_admin = models.BooleanField(default=False)
+    is_staff=models.BooleanField(default=False)
+    is_owner=models.BooleanField(default=False)
     objects=UserManager()
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username']
@@ -43,11 +45,9 @@ class Store(models.Model):
 
 
 
-
-
 class Permissions(models.Model):
     name=models.CharField(max_length=255)
-    code=models.PositiveIntegerField()
+    code=models.CharField(max_length=255)
 
 
 
@@ -93,6 +93,12 @@ class Images(models.Model):
 
 
 
+def setup_permissions():
+            for i in permissions:
+                obj,create=Permissions.objects.get_or_create()
+                code=i[0],name=i[1]
+
+setup_permissions()      
 
 
 
