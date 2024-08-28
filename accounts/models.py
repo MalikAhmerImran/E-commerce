@@ -51,8 +51,7 @@ class Permissions(models.Model):
 
 
 
-class Role(models.Model):
-    
+class Role(models.Model):   
     permissions=models.ManyToManyField(Permissions)
 
 
